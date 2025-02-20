@@ -1,7 +1,7 @@
 package mate.academy.bookshop.repository.impl;
 
 import java.util.List;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import mate.academy.bookshop.exceptions.DataProcessingExecption;
 import mate.academy.bookshop.model.Book;
 import mate.academy.bookshop.repository.BookRepository;
@@ -11,7 +11,7 @@ import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Repository
 public class BookRepositoryImpl implements BookRepository {
     private final SessionFactory sessionFactory;
