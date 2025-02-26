@@ -1,6 +1,7 @@
 package mate.academy.bookshop.repository.impl;
 
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import mate.academy.bookshop.exceptions.DataProcessingExecption;
 import mate.academy.bookshop.model.Book;
@@ -45,6 +46,15 @@ public class BookRepositoryImpl implements BookRepository {
             return getAllBookQuery.getResultList();
         } catch (Exception e) {
             throw new DataProcessingExecption("Could not find all books", e);
+        }
+    }
+
+    @Override
+    public Optional<Book> findById(Long id) {
+        try (Session session = sessionFactory.openSession()) {
+            return Optional.ofNullable(session.get(Book.class, id));
+        } catch (Exception e) {
+            throw new DataProcessingExecption("Could not find book with id " + id, e);
         }
     }
 }
