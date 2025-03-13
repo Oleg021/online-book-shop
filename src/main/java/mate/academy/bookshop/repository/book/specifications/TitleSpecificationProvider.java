@@ -1,5 +1,7 @@
 package mate.academy.bookshop.repository.book.specifications;
 
+import static mate.academy.bookshop.repository.book.BookSpecificationBuilder.TITLE;
+
 import mate.academy.bookshop.model.Book;
 import mate.academy.bookshop.repository.SpecificationProvider;
 import org.springframework.data.jpa.domain.Specification;
@@ -7,7 +9,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class TitleSpecificationProvider implements SpecificationProvider<Book> {
-    private static final String TITLE = "title";
 
     @Override
     public String getKey() {

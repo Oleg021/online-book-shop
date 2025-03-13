@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @Component
 public class BookSpecificationBuilder implements SpecificationBuilder<Book> {
-    private static final String AUTHOR = "author";
-    private static final String TITLE = "title";
+    public static final String AUTHOR = "author";
+    public static final String TITLE = "title";
     private SpecificationProviderManager<Book> bookSpecificationProviderManager;
 
     @Override
