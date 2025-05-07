@@ -5,6 +5,6 @@ import mate.academy.bookshop.dto.user.UserResponseDto;
 import mate.academy.bookshop.exceptions.RegistrationException;
 
 public interface UserService {
-    UserResponseDto register(UserRegistrationRequestDto requestDto)
+    UserResponseDto register(String email, UserRegistrationRequestDto requestDto)
             throws RegistrationException;
 }
