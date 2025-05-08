@@ -1,5 +1,6 @@
 package mate.academy.bookshop.service.impl;
 
+import jakarta.transaction.Transactional;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import mate.academy.bookshop.dto.user.UserRegistrationRequestDto;
@@ -16,8 +17,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
+@Transactional
 @Service
 public class UserServiceImpl implements UserService {
+    private static final Role.RoleName ROLE_USER = Role.RoleName.ROLE_USER;
     private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -33,8 +36,9 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.toModel(requestDto);
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(requestDto.getPassword()));
-        user.setRoles(Set.of(roleRepository.findByName(Role.RoleName.ROLE_USER)
-                .orElseThrow(() -> new EntityNotFoundException("Role not found"))));
+        user.setRoles(Set.of(roleRepository.findByName(ROLE_USER)
+                .orElseThrow(() -> new EntityNotFoundException("Role "
+                        + ROLE_USER.name() + " not found"))));
         userRepository.save(user);
         return userMapper.toUserResponseDto(user);
     }

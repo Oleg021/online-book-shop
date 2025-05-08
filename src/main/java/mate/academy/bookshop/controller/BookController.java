@@ -32,7 +32,7 @@ public class BookController {
     @GetMapping
     @Operation(summary = "Get all books",
             description = "Get list of all books")
-    @PreAuthorize("hasAnyRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public List<BookDto> getAll(Pageable pageable) {
         return bookService.findAll(pageable);
     }
@@ -40,7 +40,7 @@ public class BookController {
     @GetMapping("/{id}")
     @Operation(summary = "Get book",
             description = "Get specific book by id")
-    @PreAuthorize("hasAnyRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public BookDto getById(@PathVariable Long id) {
         return bookService.findById(id);
     }
@@ -74,7 +74,7 @@ public class BookController {
     @GetMapping("/search")
     @Operation(summary = "Search books",
             description = "Search specific books using parameters")
-    @PreAuthorize("hasAnyRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public List<BookDto> search(BookSearchParameters searchParameters, Pageable pageable) {
         return bookService.search(searchParameters, pageable);
     }
