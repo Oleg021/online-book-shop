@@ -29,33 +29,33 @@ import org.springframework.web.bind.annotation.RestController;
 public class BookController {
     private final BookService bookService;
 
-    @GetMapping
     @Operation(summary = "Get all books",
             description = "Get list of all books")
+    @GetMapping
     @PreAuthorize("hasRole('ROLE_USER')")
     public List<BookDto> getAll(Pageable pageable) {
         return bookService.findAll(pageable);
     }
 
-    @GetMapping("/{id}")
     @Operation(summary = "Get book",
             description = "Get specific book by id")
+    @GetMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_USER')")
     public BookDto getById(@PathVariable Long id) {
         return bookService.findById(id);
     }
 
-    @PostMapping
     @Operation(summary = "Create a new book",
             description = "Create a new book")
+    @PostMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public BookDto createBook(@RequestBody @Valid CreateBookRequestDto bookDto) {
         return bookService.save(bookDto);
     }
 
-    @DeleteMapping("/{id}")
     @Operation(summary = "Delete book",
             description = "Delete specific book by id")
+    @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public void deleteBook(@PathVariable Long id) {
@@ -63,17 +63,17 @@ public class BookController {
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @PutMapping("/{id}")
     @Operation(summary = "Update book",
             description = "Update specific book by id")
+    @PutMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public BookDto update(@PathVariable Long id, @RequestBody @Valid CreateBookRequestDto bookDto) {
         return bookService.update(id, bookDto);
     }
 
-    @GetMapping("/search")
     @Operation(summary = "Search books",
             description = "Search specific books using parameters")
+    @GetMapping("/search")
     @PreAuthorize("hasRole('ROLE_USER')")
     public List<BookDto> search(BookSearchParameters searchParameters, Pageable pageable) {
         return bookService.search(searchParameters, pageable);
