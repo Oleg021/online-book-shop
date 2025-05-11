@@ -12,6 +12,7 @@ import mate.academy.bookshop.model.Role;
 import mate.academy.bookshop.model.User;
 import mate.academy.bookshop.repository.role.RoleRepository;
 import mate.academy.bookshop.repository.user.UserRepository;
+import mate.academy.bookshop.service.ShoppingCartService;
 import mate.academy.bookshop.service.UserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
+    private final ShoppingCartService shoppingCartService;
 
     @Override
     public UserResponseDto register(String email, UserRegistrationRequestDto requestDto)
@@ -39,6 +41,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new EntityNotFoundException("Role "
                         + ROLE_USER.name() + " not found"))));
         userRepository.save(user);
+        shoppingCartService.createShoppingCart(user);
         return userMapper.toUserResponseDto(user);
     }
 }
