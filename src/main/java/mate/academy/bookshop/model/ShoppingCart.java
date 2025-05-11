@@ -4,8 +4,6 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapsId;
@@ -27,7 +25,6 @@ import org.hibernate.annotations.SQLRestriction;
 @Table(name = "carts")
 public class ShoppingCart {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId
@@ -37,6 +34,6 @@ public class ShoppingCart {
             cascade = CascadeType.ALL,
             orphanRemoval = true)
     private Set<CartItem> carItems = new HashSet<>();
-    @Column(name = "is_deleted", nullable = false, columnDefinition = "BIT")
+    @Column(nullable = false, columnDefinition = "BIT")
     private boolean isDeleted;
 }
