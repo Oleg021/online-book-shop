@@ -25,6 +25,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookDto save(CreateBookRequestDto bookRequestDto) {
         Book book = bookMapper.toModel(bookRequestDto);
+        book.setCategories(bookRequestDto.getCategories());
         return bookMapper.toDto(bookRepository.save(book));
     }
 
