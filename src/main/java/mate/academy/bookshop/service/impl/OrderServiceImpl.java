@@ -56,7 +56,9 @@ public class OrderServiceImpl implements OrderService {
                         .findById(userId)
                         .get().getCarItems();
         if (cartItems.isEmpty()) {
-            throw new OrderProcessingException("Shopping cart is empty");
+            throw new OrderProcessingException(
+                    "Shopping cart is empty for user " + userId
+            );
         }
         Set<OrderItem> orderItems = cartItems.stream()
                 .map(orderItemMapper::fromCartToOrderItem)
