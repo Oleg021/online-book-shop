@@ -7,8 +7,10 @@ import lombok.RequiredArgsConstructor;
 import mate.academy.bookshop.dto.category.CategoryDto;
 import mate.academy.bookshop.dto.category.CreateCategoryRequestDto;
 import mate.academy.bookshop.service.CategoryService;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,7 +35,7 @@ public class CategoryController {
             description = "Get list of all categories")
     @GetMapping
     @PreAuthorize("hasRole('ROLE_USER')")
-    public Page<CategoryDto> getAll(Pageable pageable) {
+    public Page<CategoryDto> getAll(@ParameterObject @PageableDefault Pageable pageable) {
         return categoryService.getAll(pageable);
     }
 
