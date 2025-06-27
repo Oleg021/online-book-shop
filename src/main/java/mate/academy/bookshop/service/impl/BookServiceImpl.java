@@ -11,6 +11,7 @@ import mate.academy.bookshop.model.Book;
 import mate.academy.bookshop.repository.book.BookRepository;
 import mate.academy.bookshop.repository.book.BookSpecificationBuilder;
 import mate.academy.bookshop.service.BookService;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -30,10 +31,8 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public List<BookDto> findAll(Pageable pageable) {
-        return bookRepository.findAll(pageable).stream()
-                .map(bookMapper::toDto)
-                .toList();
+    public Page<BookDto> findAll(Pageable pageable) {
+        return bookRepository.findAll(pageable).map(bookMapper::toDto);
     }
 
     @Override
@@ -52,17 +51,16 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookDto update(Long id, CreateBookRequestDto bookRequestDto) {
         Book book = bookRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("Could not find book with id: " + id)
-        );
+                () -> new EntityNotFoundException("Can't find book by id " + id));
         bookMapper.updateBookFromDto(bookRequestDto, book);
-        book = bookRepository.save(book);
+        bookRepository.save(book);
         return bookMapper.toDto(book);
     }
 
     @Override
     public List<BookDto> search(BookSearchParameters params, Pageable pageable) {
         Specification<Book> bookSpecification = bookSpecificationBuilder.build(params);
-        return bookRepository.findAll(bookSpecification).stream()
+        return bookRepository.findAll(bookSpecification, pageable).stream()
                 .map(bookMapper::toDto)
                 .toList();
     }
