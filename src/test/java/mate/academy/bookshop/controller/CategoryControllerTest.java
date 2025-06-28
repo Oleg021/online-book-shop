@@ -1,36 +1,47 @@
-package mate.academy.bookshop.category;
+package mate.academy.bookshop.controller;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.transaction.Transactional;
+import java.util.List;
+import java.util.Map;
 import mate.academy.bookshop.dto.category.CategoryDto;
 import mate.academy.bookshop.dto.category.CreateCategoryRequestDto;
-import org.junit.jupiter.api.Assertions;
+import mate.academy.bookshop.util.CategoryUtil;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureMockMvc
-@Transactional
 class CategoryControllerTest {
-    @Autowired
-    private MockMvc mockMvc;
+    protected static MockMvc mockMvc;
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @BeforeAll
+    static void beforeAll(@Autowired WebApplicationContext context) {
+        mockMvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .apply(springSecurity())
+                .build();
+    }
 
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
@@ -38,9 +49,7 @@ class CategoryControllerTest {
     @Sql(scripts = "classpath:database/categories/delete-from-categories.sql",
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void createCategory_validRequestDto_successful() throws Exception {
-        CreateCategoryRequestDto requestDto = new CreateCategoryRequestDto();
-        requestDto.setName("Test Category");
-        requestDto.setDescription("Test description");
+        CreateCategoryRequestDto requestDto = CategoryUtil.buildCreateCategoryRequestDto();
 
         String json = objectMapper.writeValueAsString(requestDto);
 
@@ -53,8 +62,9 @@ class CategoryControllerTest {
         CategoryDto actual = objectMapper.readValue(
                 result.getResponse().getContentAsString(), CategoryDto.class);
 
-        Assertions.assertEquals("Test Category", actual.getName());
-        Assertions.assertEquals("Test description", actual.getDescription());
+        CategoryDto expected = CategoryUtil.buildCategoryDtoWithId(actual.getId());
+
+        assertEquals(expected, actual);
     }
 
     @Test
@@ -65,9 +75,7 @@ class CategoryControllerTest {
     @Sql(scripts = "classpath:database/categories/delete-from-categories.sql",
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void updateCategory_ExistInDb_successful() throws Exception {
-        CreateCategoryRequestDto requestDto = new CreateCategoryRequestDto();
-        requestDto.setName("Updated Category");
-        requestDto.setDescription("Updated description");
+        CreateCategoryRequestDto requestDto = CategoryUtil.buildUpdateCategoryRequestDto();
 
         String json = objectMapper.writeValueAsString(requestDto);
 
@@ -80,8 +88,9 @@ class CategoryControllerTest {
         CategoryDto actual = objectMapper.readValue(
                 result.getResponse().getContentAsString(), CategoryDto.class);
 
-        Assertions.assertEquals("Updated Category", actual.getName());
-        Assertions.assertEquals("Updated description", actual.getDescription());
+        CategoryDto expected = CategoryUtil.buildUpdatedCategoryDto(actual.getId());
+
+        assertEquals(expected, actual);
     }
 
     @Test
@@ -100,8 +109,18 @@ class CategoryControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        String response = result.getResponse().getContentAsString();
-        Assertions.assertTrue(response.contains("Category 1"));
+        String jsonResponse = result.getResponse().getContentAsString();
+
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Object> responseMap = mapper.readValue(
+                jsonResponse, new TypeReference<>() {});
+
+        String contentJson = mapper.writeValueAsString(responseMap.get("content"));
+        List<CategoryDto> actualCategories = mapper.readValue(
+                contentJson, new TypeReference<List<CategoryDto>>() {});
+        List<CategoryDto> expectedCategories = CategoryUtil.buildSampleCategoryDtoList();
+
+        assertEquals(expectedCategories, actualCategories);
     }
 
     @Test
@@ -120,7 +139,9 @@ class CategoryControllerTest {
         CategoryDto actual = objectMapper.readValue(
                 result.getResponse().getContentAsString(), CategoryDto.class);
 
-        Assertions.assertEquals(1L, actual.getId());
+        CategoryDto expected = CategoryUtil.buildSampleCategoryDto();
+
+        assertEquals(expected, actual);
     }
 
     @Test

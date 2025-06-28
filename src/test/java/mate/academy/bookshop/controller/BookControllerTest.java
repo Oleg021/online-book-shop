@@ -1,5 +1,8 @@
-package mate.academy.bookshop.book;
+package mate.academy.bookshop.controller;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -7,12 +10,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Set;
+import java.util.List;
+import java.util.Map;
 import mate.academy.bookshop.dto.book.BookDto;
 import mate.academy.bookshop.dto.book.CreateBookRequestDto;
-import mate.academy.bookshop.model.Category;
-import org.junit.jupiter.api.Assertions;
+import mate.academy.bookshop.util.BookUtil;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -58,7 +63,13 @@ class BookControllerTest {
                 .andReturn();
 
         String response = result.getResponse().getContentAsString();
-        Assertions.assertTrue(response.contains("content"));
+
+        Map<String, Object> pageResponse = objectMapper.readValue(
+                response, new TypeReference<>() {});
+        List<Map<String, Object>> content = (List<Map<String, Object>>) pageResponse.get("content");
+
+        assertEquals(3, content.size());
+        assertEquals("Book One", content.get(0).get("title"));
     }
 
     @Test
@@ -70,9 +81,18 @@ class BookControllerTest {
     @Sql(scripts = "classpath:database/books/delete-from-books.sql",
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void getBookById_WithValidId_ShouldReturnBookDto() throws Exception {
-        mockMvc.perform(get("/books/1")
+        MvcResult result = mockMvc.perform(get("/books/1")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        BookDto actual = objectMapper.readValue(response, BookDto.class);
+
+        assertEquals(1L, actual.getId());
+        assertEquals("Test Book", actual.getTitle());
+        assertEquals("Author 1", actual.getAuthor());
+        assertEquals("1111111111", actual.getIsbn());
     }
 
     @Test
@@ -86,40 +106,26 @@ class BookControllerTest {
             "classpath:database/categories/delete-from-categories.sql"
     }, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void createBook_validRequestDto_successful() throws Exception {
-        CreateBookRequestDto requestDto = new CreateBookRequestDto();
-        requestDto.setTitle("New Book");
-        requestDto.setAuthor("Author");
-        requestDto.setPrice(java.math.BigDecimal.TEN);
-        requestDto.setIsbn("1234567890");
-        requestDto.setDescription("Desc");
-        requestDto.setCoverImage("");
+        CreateBookRequestDto requestDto = BookUtil.buildCreateBookRequestDto();
+        BookDto expected = BookUtil.createBookDto();
 
-        Category fiction = new Category();
-        fiction.setId(1L);
-        fiction.setName("Fiction");
-        fiction.setDescription("Fiction books");
+        String jsonRequest = objectMapper.writeValueAsString(requestDto);
 
-        Category science = new Category();
-        science.setId(2L);
-        science.setName("Science");
-        science.setDescription("Science books");
-
-        requestDto.setCategories(Set.of(fiction, science));
-
-        String json = objectMapper.writeValueAsString(requestDto);
-
-        MvcResult result = mockMvc.perform(post("/books")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
+        MvcResult result = mockMvc.perform(
+                        post("/books")
+                                .content(jsonRequest)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
                 .andExpect(status().isCreated())
                 .andReturn();
 
         BookDto actual = objectMapper.readValue(
-                result.getResponse().getContentAsString(), BookDto.class);
+                result.getResponse().getContentAsString(), BookDto.class
+        );
 
-        Assertions.assertNotNull(actual);
-        Assertions.assertNotNull(actual.getId());
-        Assertions.assertEquals("New Book", actual.getTitle());
+        assertNotNull(actual);
+        assertNotNull(actual.getId());
+        EqualsBuilder.reflectionEquals(expected, actual, "id");
     }
 
     @Test
@@ -149,25 +155,7 @@ class BookControllerTest {
             "classpath:database/categories/delete-from-categories.sql"
     }, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void updateBook_bookExistInDb_successful() throws Exception {
-        CreateBookRequestDto requestDto = new CreateBookRequestDto();
-        requestDto.setTitle("Updated Book");
-        requestDto.setAuthor("Updated Author");
-        requestDto.setPrice(java.math.BigDecimal.valueOf(20));
-        requestDto.setIsbn("9876543210");
-        requestDto.setDescription("Updated desc");
-        requestDto.setCoverImage("");
-
-        Category fiction = new Category();
-        fiction.setId(1L);
-        fiction.setName("Fiction");
-        fiction.setDescription("Fiction books");
-
-        Category science = new Category();
-        science.setId(2L);
-        science.setName("Science");
-        science.setDescription("Science books");
-
-        requestDto.setCategories(Set.of(fiction, science));
+        CreateBookRequestDto requestDto = BookUtil.buildUpdateBookRequestDto();
 
         String json = objectMapper.writeValueAsString(requestDto);
 
@@ -180,7 +168,9 @@ class BookControllerTest {
         BookDto actual = objectMapper.readValue(
                 result.getResponse().getContentAsString(), BookDto.class);
 
-        Assertions.assertEquals("Updated Book", actual.getTitle());
+        BookDto expected = BookUtil.buildExpectedBookDto(requestDto, actual);
+
+        assertEquals(expected, actual);
     }
 
     @Test
@@ -202,6 +192,6 @@ class BookControllerTest {
                 .andReturn();
 
         String response = result.getResponse().getContentAsString();
-        Assertions.assertTrue(response.contains("Author 1"));
+        assertTrue(response.contains("Author 1"));
     }
 }
