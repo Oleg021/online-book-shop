@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 public class BookSpecificationBuilder implements SpecificationBuilder<Book> {
     public static final String AUTHOR = "author";
     public static final String TITLE = "title";
-    private SpecificationProviderManager<Book> bookSpecificationProviderManager;
+    private final SpecificationProviderManager<Book> bookSpecificationProviderManager;
 
     @Override
     public Specification<Book> build(BookSearchParameters searchParameters) {

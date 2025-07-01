@@ -10,6 +10,7 @@ import mate.academy.bookshop.dto.book.BookSearchParameters;
 import mate.academy.bookshop.dto.book.CreateBookRequestDto;
 import mate.academy.bookshop.service.BookService;
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -35,7 +36,7 @@ public class BookController {
             description = "Get list of all books")
     @GetMapping
     @PreAuthorize("hasRole('ROLE_USER')")
-    public List<BookDto> getAll(@ParameterObject @PageableDefault Pageable pageable) {
+    public Page<BookDto> getAll(@ParameterObject @PageableDefault Pageable pageable) {
         return bookService.findAll(pageable);
     }
 
@@ -50,6 +51,7 @@ public class BookController {
     @Operation(summary = "Create a new book",
             description = "Create a new book")
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public BookDto createBook(@RequestBody @Valid CreateBookRequestDto bookDto) {
         return bookService.save(bookDto);
