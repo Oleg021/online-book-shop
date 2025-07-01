@@ -88,11 +88,9 @@ class BookControllerTest {
 
         String response = result.getResponse().getContentAsString();
         BookDto actual = objectMapper.readValue(response, BookDto.class);
+        BookDto expected = BookUtil.createExpectedBookDto();
 
-        assertEquals(1L, actual.getId());
-        assertEquals("Test Book", actual.getTitle());
-        assertEquals("Author 1", actual.getAuthor());
-        assertEquals("1111111111", actual.getIsbn());
+        assertEquals(expected, actual);
     }
 
     @Test

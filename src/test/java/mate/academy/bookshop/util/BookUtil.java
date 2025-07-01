@@ -1,6 +1,7 @@
 package mate.academy.bookshop.util;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.Set;
 import mate.academy.bookshop.dto.book.BookDto;
 import mate.academy.bookshop.dto.book.CreateBookRequestDto;
@@ -38,6 +39,19 @@ public class BookUtil {
         bookDto.setAuthor("Author");
         bookDto.setIsbn("1234567890");
         bookDto.setPrice(BigDecimal.TEN);
+        return bookDto;
+    }
+
+    public static BookDto createExpectedBookDto() {
+        BookDto bookDto = new BookDto();
+        bookDto.setId(1L);
+        bookDto.setTitle("Test Book");
+        bookDto.setAuthor("Author 1");
+        bookDto.setIsbn("1111111111");
+        bookDto.setPrice(BigDecimal.valueOf(10.0).setScale(2));
+        bookDto.setDescription("Test description");
+        bookDto.setCoverImage("");
+        bookDto.setCategories(new HashSet<>());
         return bookDto;
     }
 
