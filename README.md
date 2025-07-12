@@ -49,7 +49,7 @@ Let me walk you through how it all works!
     - Maven
     - MySQL
     - Docker
-- Clone the repository
+- Clone the repository: https://github.com/Oleg021/online-book-shop.git
 - Create an env file (a template is provided, see "env.template" file)
 - Run the following commands:
 ```
@@ -62,6 +62,9 @@ You can see and try all the functions (and models) by activating the project and
     email: admin@email.com
     password: 1234
 ```
+---
+### 🧪 [Postman collection for testing](https://oleh-97197.postman.co/workspace/Oleh's-Workspace~0f65e419-89a9-41e6-8a3f-26f2fcc42068/collection/44745715-beb68472-4d89-4341-ad8c-15dac181f289?action=share&creator=44745715)
+---
 ---
 ### 📊 Running Tests
 To run tests, run the following command
