@@ -16,6 +16,8 @@ Let me walk you through how it all works!
 - Docker 3.4.1
 - JUnit 4.13.2
 - Swagger 5.20.1
+- Liquibase 4.29.2
+- Mapstruct 1.5.5
 ---
 ### 📎 Functionality
 1. User Registration, Authentication & Authorization:
